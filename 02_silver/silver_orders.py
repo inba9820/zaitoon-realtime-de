@@ -24,3 +24,42 @@ orders_clean = orders_clean.withColumn(
     "order_status_clean",
     F.lower(F.trim(F.col("order_status")))
 )
+
+# COMMAND ----------
+# Flag 1: order_placed_at is missing — we can't compute lifecycle durations for this order
+orders_clean = orders_clean.withColumn(
+    "has_missing_placed_time",
+    F.col("order_placed_at").isNull()
+)
+
+# COMMAND ----------
+# Flag 2: cancelled order that still has a delivered timestamp — contradictory state
+orders_clean = orders_clean.withColumn(
+    "has_cancelled_but_delivered",
+    (F.col("order_status_clean") == "cancelled") & (F.col("order_delivered_at").isNotNull())
+)
+
+# COMMAND ----------
+# Flag 3: delivered timestamp earlier than ready timestamp — impossible lifecycle order
+orders_clean = orders_clean.withColumn(
+    "has_illogical_lifecycle_times",
+    (F.col("order_delivered_at").isNotNull()) &
+    (F.col("order_ready_at").isNotNull()) &
+    (F.col("order_delivered_at") < F.col("order_ready_at"))
+)
+
+# COMMAND ----------
+# Flag 4: order's currency doesn't match its outlet's home currency
+orders_clean = orders_clean.join(
+    outlets_bronze.select(
+        F.col("outlet_id"),
+        F.col("currency").alias("outlet_home_currency")
+    ),
+    on="outlet_id",
+    how="left"
+)
+
+orders_clean = orders_clean.withColumn(
+    "has_currency_mismatch",
+    F.col("currency") != F.col("outlet_home_currency")
+)
