@@ -53,7 +53,7 @@ orders_clean = orders_clean.withColumn(
 orders_clean = orders_clean.join(
     outlets_bronze.select(
         F.col("outlet_id"),
-        F.col("currency").alias("outlet_home_currency")
+        F.upper(F.trim(F.col("currency"))).alias("outlet_home_currency")
     ),
     on="outlet_id",
     how="left"
@@ -61,7 +61,7 @@ orders_clean = orders_clean.join(
 
 orders_clean = orders_clean.withColumn(
     "has_currency_mismatch",
-    F.col("currency") != F.col("outlet_home_currency")
+    F.upper(F.trim(F.col("currency"))) != F.col("outlet_home_currency")
 )
 
 # COMMAND ----------
