@@ -63,3 +63,17 @@ orders_clean = orders_clean.withColumn(
     "has_currency_mismatch",
     F.col("currency") != F.col("outlet_home_currency")
 )
+
+# COMMAND ----------
+# Reconciliation: does the order's total_amount match the sum of its line items?
+order_items_totals = order_items_bronze.groupBy("order_id").agg(
+    F.sum(F.col("quantity") * F.col("unit_price")).alias("computed_items_total")
+)
+
+orders_clean = orders_clean.join(order_items_totals, on="order_id", how="left")
+
+orders_clean = orders_clean.withColumn(
+    "has_amount_mismatch",
+    (F.col("computed_items_total").isNull()) |
+    (F.abs(F.col("total_amount") - F.col("computed_items_total")) > 0.01)
+)
