@@ -1,0 +1,19 @@
+# This is a Declarative Automation Bundle definition for zaitoon-realtime-de.
+# The Databricks extension requires databricks.yml configuration file.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+
+bundle:
+  name: zaitoon-realtime-de
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-f1efc6af-699a.cloud.databricks.com
+
+  ## Optionally, there could be 'staging' or 'prod' targets here.
+  #
+  # prod:
+  #   workspace:
+  #     host: https://dbc-f1efc6af-699a.cloud.databricks.com

@@ -53,7 +53,7 @@ orders_clean = orders_clean.withColumn(
 orders_clean = orders_clean.join(
     outlets_bronze.select(
         F.col("outlet_id"),
-        F.col("currency").alias("outlet_home_currency")
+        F.upper(F.trim(F.col("currency"))).alias("outlet_home_currency")
     ),
     on="outlet_id",
     how="left"
@@ -61,7 +61,7 @@ orders_clean = orders_clean.join(
 
 orders_clean = orders_clean.withColumn(
     "has_currency_mismatch",
-    F.col("currency") != F.col("outlet_home_currency")
+    F.upper(F.trim(F.col("currency"))) != F.col("outlet_home_currency")
 )
 
 # COMMAND ----------
@@ -77,3 +77,11 @@ orders_clean = orders_clean.withColumn(
     (F.col("computed_items_total").isNull()) |
     (F.abs(F.col("total_amount") - F.col("computed_items_total")) > 0.01)
 )
+# COMMAND ----------
+orders_clean.select(
+    "order_id", "order_type", "order_type_clean",
+    "order_status", "order_status_clean",
+    "has_missing_placed_time", "has_cancelled_but_delivered",
+    "has_illogical_lifecycle_times", "has_currency_mismatch",
+    "total_amount", "computed_items_total", "has_amount_mismatch"
+).show(truncate=False)
