@@ -3,7 +3,7 @@ from pyspark.sql import functions as F
 
 # COMMAND ----------
 order_items_bronze = spark.table("zaitoon_catalog.bronze.order_items")
-
+#bronze to silver transformation
 # COMMAND ----------
 # Flag 1: zero quantity — likely a bad POS entry, not a real transaction
 order_items_clean = order_items_bronze.withColumn(
