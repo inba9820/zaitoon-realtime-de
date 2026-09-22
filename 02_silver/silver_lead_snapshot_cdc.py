@@ -1,15 +1,15 @@
 # Databricks notebook source
 from pyspark.sql import functions as F
 
-# COMMAND ----------
-# Take a full copy of the current lead table, and stamp it with the exact time we took it
-lead_snapshot = spark.table("zaitoon_catalog.bronze.lead").withColumn(
-    "snapshot_taken_at", F.current_timestamp()
-)
+# # COMMAND ----------
+# # Take a full copy of the current lead table, and stamp it with the exact time we took it
+# lead_snapshot = spark.table("zaitoon_catalog.bronze.lead").withColumn(
+#     "snapshot_taken_at", F.current_timestamp()
+# )
 
-lead_snapshot.write.format("delta").mode("append").saveAsTable(
-    "zaitoon_catalog.silver.lead_snapshots"
-)
+# lead_snapshot.write.format("delta").mode("append").saveAsTable(
+#     "zaitoon_catalog.silver.lead_snapshots"
+# )
 
 # Databricks notebook source
 from pyspark.sql import functions as F
@@ -53,9 +53,16 @@ lead_diff = lead_diff.withColumn(
 )
 
 # COMMAND ----------
-lead_diff.select("Id", "old_status", "new_status", "change_type").show(truncate=False)
+lead_change_events = lead_diff.filter(
+    F.col("change_type") != "UNCHANGED"
+).withColumn(
+    "detected_at", F.current_timestamp()
+).select(
+    "Id", "change_type", "old_status", "new_status", "detected_at"
+)
 
-lead_diff.filter("Id = '00QjV000002rpzJUAQ'").select("Id", "old_status", "new_status", "change_type").show(truncate=False)
+lead_change_events.write.format("delta").mode("append").saveAsTable(
+    "zaitoon_catalog.silver.lead_change_events"
+)
 
-lead_diff.groupBy("change_type").count().show()
 
