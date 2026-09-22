@@ -77,3 +77,8 @@ orders_clean = orders_clean.withColumn(
     (F.col("computed_items_total").isNull()) |
     (F.abs(F.col("total_amount") - F.col("computed_items_total")) > 0.01)
 )
+
+# COMMAND ----------
+orders_clean.write.format("delta").mode("overwrite").saveAsTable(
+    "zaitoon_catalog.silver.orders_clean"
+)

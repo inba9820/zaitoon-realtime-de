@@ -26,7 +26,6 @@ order_items_clean = order_items_clean.withColumn(
 )
 
 # COMMAND ----------
-order_items_clean.select(
-    "order_id", "item_id", "quantity", "unit_price",
-    "has_zero_quantity", "has_negative_quantity", "line_total"
-).show(truncate=False)
+order_items_clean.write.format("delta").mode("overwrite").saveAsTable(
+    "zaitoon_catalog.silver.order_items_clean"
+)
