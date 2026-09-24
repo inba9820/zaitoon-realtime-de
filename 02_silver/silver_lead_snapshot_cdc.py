@@ -1,15 +1,15 @@
 # Databricks notebook source
 from pyspark.sql import functions as F
 
-# # COMMAND ----------
-# # Take a full copy of the current lead table, and stamp it with the exact time we took it
-# lead_snapshot = spark.table("zaitoon_catalog.bronze.lead").withColumn(
-#     "snapshot_taken_at", F.current_timestamp()
-# )
+# COMMAND ----------
+# Take a full copy of the current lead table, and stamp it with the exact time we took it
+lead_snapshot = spark.table("zaitoon_catalog.bronze.lead").withColumn(
+    "snapshot_taken_at", F.current_timestamp()
+)
 
-# lead_snapshot.write.format("delta").mode("append").saveAsTable(
-#     "zaitoon_catalog.silver.lead_snapshots"
-# )
+lead_snapshot.write.format("delta").mode("append").saveAsTable(
+    "zaitoon_catalog.silver.lead_snapshots"
+)
 
 # Databricks notebook source
 from pyspark.sql import functions as F
