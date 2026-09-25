@@ -36,7 +36,7 @@ hash_cols = [c for c in staging.columns if c not in volatile_cols]
 staging_hashed = staging.withColumn(
     "row_hash",
     F.sha2(F.concat_ws("||", *[F.coalesce(F.col(c).cast("string"), F.lit("")) for c in hash_cols]), 256)
-)#consider lead table as staging table, and lead_operations as the target table. The code is comparing the current state of the lead table with the latest logged state in the lead_operations table to determine what changes have occurred (CREATE, UPDATE, DELETE) and then logging those changes into the lead_operations table.
+)#lead table as staging table, and lead_operations as the target table. The code is comparing the current state of the lead table with the latest logged state in the lead_operations table to determine what changes have occurred (CREATE, UPDATE, DELETE) and then logging those changes into the lead_operations table.
 
 # COMMAND ----------
 # For each lead, find the most recent operation already logged for it (if any)
