@@ -64,7 +64,3 @@ query = (
         .start()
 )
 query.awaitTermination()
-
-# COMMAND ----------
-
-spark.table("zaitoon_catalog.silver.lead_current").count()
